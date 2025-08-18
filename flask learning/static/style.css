@@ -1,0 +1,47 @@
+body {
+    font-style: sans-serif;
+    background-color: #05070793;
+    font-size: 12px;
+}
+form {
+    margin:100px auto 0 auto;
+    width: 400px;
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+}
+h1 {
+    text-align: center;
+    color: #3a1d1d;
+    font-family:sans-serif ;
+    font-weight: 1000;
+
+}
+input[type="number"], select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #0099ff;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+input[type="submit"] {
+    background-color: #1385b3;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+
+}
+input[type="submit"]:hover {
+    background-color: #6c45a0;
+}
+h3 {
+    text-align: center;
+    color: #333;
+    font-family: sans-serif;
+    font-weight: 1000;
+}

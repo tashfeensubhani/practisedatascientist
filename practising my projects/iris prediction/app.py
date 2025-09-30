@@ -22,7 +22,7 @@ def predict():
         mapping = {0: "Iris-setosa", 1: "Iris-versicolor", 2: "Iris-virginica"}
         predicted_species = mapping[prediction[0]]
         
-        return render_template("index.html", prediction_text=f"Predicted Iris Species: {predicted_species}")
+        return render_template("index.html", prediction_text=f"Predicted Iris Specie: {predicted_species}")
     return render_template("index.html")
 if __name__ == "__main__":
     app.run(debug=True)

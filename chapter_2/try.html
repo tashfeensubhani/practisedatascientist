@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Memory Flashback — Birthday Card</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg-a: #0f172a;
+    --bg-b: #1f2937;
+    --card-w: 920px;
+    --accent: #ff6b81;
+    --glass: rgba(255,255,255,0.06);
+    --glass-2: rgba(255,255,255,0.04);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(160deg, var(--bg-a), var(--bg-b) 60%);
+    color: #fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    overflow:hidden;
+  }
+
+  /* center stage */
+  .stage{
+    width:100%;
+    max-width:var(--card-w);
+    height:640px;
+    position:relative;
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow: 0 20px 60px rgba(2,6,23,0.6);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  }
+
+  /* cinematic blurred background */
+  .bg-blur{
+    position:absolute; inset:0; filter: blur(28px) saturate(1.2) contrast(.95);
+    background:
+      radial-gradient(ellipse at 10% 20%, rgba(255,107,129,0.06), transparent 10%),
+      radial-gradient(ellipse at 90% 75%, rgba(106,180,255,0.04), transparent 12%);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  /* small floating bokeh */
+  .bokeh { position:absolute; inset:0; pointer-events:none; z-index:0; }
+  .bokeh span{
+    position:absolute;
+    width:18px;height:18px;
+    background:rgba(255,255,255,0.03);
+    border-radius:50%;
+    filter: blur(6px);
+    animation: drift 12s linear infinite;
+  }
+  @keyframes drift {
+    0%{ transform: translateY(0) translateX(0) }
+    50%{ transform: translateY(-40px) translateX(20px) }
+    100%{ transform: translateY(0) translateX(-10px) }
+  }
+
+  /* slides container */
+  .slides{
+    position:relative;
+    height:100%;
+    width:100%;
+    z-index:2;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .slide{
+    position:absolute;
+    width:90%;
+    max-width:880px;
+    height:84%;
+    border-radius:14px;
+    padding:28px;
+    display:grid;
+    grid-template-rows: auto 1fr auto;
+    gap:14px;
+    align-items:start;
+    justify-items:center;
+    transform: translateY(30px) scale(.98);
+    opacity:0;
+    transition: all 700ms cubic-bezier(.2,.9,.2,1);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.04);
+    backdrop-filter: blur(6px) saturate(1.1);
+  }
+  .slide.active{ opacity:1; transform: translateY(0) scale(1); box-shadow: 0 30px 80px rgba(2,6,23,0.5) }
+
+  /* heading */
+  .heading{
+    width:100%;
+    text-align:center;
+    pointer-events:none;
+  }
+  .heading h1{
+    font-family: "Dancing Script", cursive;
+    font-size:44px;
+    letter-spacing:0.6px;
+    margin-bottom:6px;
+    color: #fff;
+    text-shadow: 0 6px 30px rgba(255,107,129,0.06);
+    transform-origin:center;
+    animation: popIn 700ms ease;
+  }
+  .heading p{ color:rgba(255,255,255,0.8); font-size:15px; opacity:.95 }
+
+  @keyframes popIn {
+    from{ transform: translateY(24px) scale(.98); opacity:0 }
+    to{ transform: translateY(0) scale(1); opacity:1 }
+  }
+
+  /* gallery layout — different styles on each slide */
+  .gallery{
+    width:100%;
+    display:flex;
+    gap:16px;
+    align-items:center;
+    justify-content:center;
+    flex-wrap:wrap;
+    padding:6px;
+  }
+
+  /* modern frames variants */
+  .frame {
+    width:240px; height:160px;
+    border-radius:12px;
+    overflow:hidden;
+    display:inline-block;
+    position:relative;
+    background:var(--glass);
+    box-shadow: 0 10px 30px rgba(3,6,17,0.6);
+    transition: transform .45s cubic-bezier(.2,.9,.2,1), box-shadow .45s;
+    border: 1px solid rgba(255,255,255,0.04);
+    flex-shrink:0;
+  }
+  .frame img, .frame video{
+    width:100%; height:100%; object-fit:cover; display:block;
+    vertical-align:middle;
+  }
+  .frame:hover{ transform: translateY(-8px) scale(1.02); box-shadow: 0 26px 64px rgba(3,6,17,0.7) }
+
+  /* frame styles */
+  .polaroid{
+    padding:14px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    border-radius:14px;
+  }
+  .polaroid .inner{
+    border-radius:10px; overflow:hidden; background:#fff;
+  }
+  .glass{
+    border: 1px solid rgba(255,255,255,0.06);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    box-shadow: inset 0 2px 8px rgba(255,255,255,0.02);
+    border-radius:14px;
+  }
+  .neon{
+    padding:8px;
+    border-radius:14px;
+    box-shadow: 0 6px 30px rgba(255,107,129,0.08), 0 0 24px rgba(255,107,129,0.03) inset;
+    border: 1px solid rgba(255,107,129,0.18);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.005));
+  }
+  .tilt{
+    transform: rotate(-5deg);
+    transition: transform .5s;
+  }
+  .film{
+    padding:8px;
+    border-radius:10px;
+    border: 2px solid rgba(255,255,255,0.03);
+    background: linear-gradient(180deg, rgba(0,0,0,0.12), rgba(255,255,255,0.01));
+  }
+
+  /* captions */
+  .caption{
+    margin-top:8px;
+    font-size:13px;
+    color: rgba(255,255,255,0.85);
+    text-align:center;
+  }
+
+  /* footer hint */
+  .hint{
+    position: absolute;
+    bottom:18px;
+    left:20px;
+    font-size:13px;
+    color: rgba(255,255,255,0.7);
+  }
+  .page{
+    position:absolute;
+    bottom:18px;
+    right:20px;
+    font-size:13px;
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* final slide special */
+  .final-inner{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    padding:20px;
+  }
+  .final-inner h2{ font-size:28px; color: #fff; margin-bottom:6px; }
+  .final-inner p{ color: rgba(255,255,255,0.9); max-width:720px; text-align:center; line-height:1.5 }
+
+  /* responsive */
+  @media (max-width:920px){
+    .frame{ width:44%; height:150px }
+  }
+  @media (max-width:540px){
+    .frame{ width:100%; height:160px }
+    .stage{ height:86vh }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="stage" role="main" aria-label="Memory flashback card">
+  <div class="bg-blur"></div>
+  <div class="bokeh" aria-hidden="true">
+    <span style="left:8%; top:18%; animation-duration:14s"></span>
+    <span style="left:30%; top:72%; animation-duration:11s"></span>
+    <span style="left:60%; top:25%; animation-duration:12s"></span>
+    <span style="left:78%; top:60%; animation-duration:16s"></span>
+    <span style="left:42%; top:44%; animation-duration:10s"></span>
+  </div>
+
+  <div class="slides" id="slidesRoot">
+    <!-- Slides populated by JS -->
+  </div>
+
+  <div class="hint">Press <b>Enter</b> to advance • ← / → to navigate</div>
+  <div class="page" id="pageIndicator"></div>
+</div>
+
+<script>
+/* ------------- USER CONTENT: replace these with your real image/video URLs ------------- */
+const images = [
+  // up to 16 image URLs. Replace these placeholders with your images (hosted links or local file paths)
+  "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=1200&q=60",
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=1200&q=60",
+  "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=1200&q=60",
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=1200&q=60",
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=60",
+  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=1200&q=60",
+  "https://images.unsplash.com/photo-1557862921-37829c790f19?w=1200&q=60",
+  "https://images.unsplash.com/photo-1504208434309-cb69f4fe52b0?w=1200&q=60",
+  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1200&q=60",
+  "https://images.unsplash.com/photo-1524503033411-c9566986fc8f?w=1200&q=60",
+  "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=1200&q=60",
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=1200&q=60",
+  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1200&q=60",
+  "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=1200&q=60",
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=60",
+  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=1200&q=60"
+];
+
+const videos = [
+  // Put 1 or 2 MP4 URLs here (or leave empty). Example local path: "videos/clip1.mp4"
+  // Autoplay policy: browsers require a user gesture first — pressing Enter to start navigation qualifies.
+  // If you provide external URLs (e.g. YouTube) use embedded iframe logic instead (not implemented here).
+  // Example: "https://www.example.com/myvideo.mp4"
+  // Leave empty if you don't want videos:
+  // "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+];
+
+/* ------------- end user content ------------- */
+
+/* helpful utilities */
+const frameTypes = ["polaroid","glass","neon","tilt","film","polaroid"]; // cycle through for variety
+const slidesRoot = document.getElementById("slidesRoot");
+const perSlide = 3; // default images per slide
+let slides = [];
+let currentIndex = 0;
+
+/* create intro slide */
+function createIntro(){
+  const s = document.createElement("section");
+  s.className = "slide active";
+  s.dataset.type = "intro";
+
+  s.innerHTML = `
+    <div class="heading">
+      <h1>Happy Birthday 🎉</h1>
+      <p>Here’s a little memory flashback — press <b>Enter</b> to start the show.</p>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;width:100%"></div>
+    <div style="width:100%;display:flex;justify-content:center;">
+      <div style="max-width:720px;color:rgba(255,255,255,0.85);text-align:center;">
+        <p style="line-height:1.5">Teri dosti, woh masti, aur woh yaadein — sab is reel mein. Enjoy every slide, and smile for the camera! 📸</p>
+      </div>
+    </div>
+  `;
+  slidesRoot.appendChild(s);
+  slides.push(s);
+}
+
+/* create image slides dynamically (3 per slide, last carries remainder) */
+function createImageSlides(imgArray){
+  if(!imgArray || imgArray.length === 0) return;
+  const chunks = [];
+  for(let i=0;i<imgArray.length;i+=perSlide){
+    chunks.push(imgArray.slice(i,i+perSlide));
+  }
+  chunks.forEach((chunk, idx) => {
+    const s = document.createElement("section");
+    s.className = "slide";
+    s.dataset.type = "gallery";
+    s.dataset.index = idx;
+
+    // heading changes slightly per gallery slide
+    const headings = ["Memories That Shine ✨","Throwback Moments 💫","Good Times & Laughter 😄","Snapshots of Us 📸","Unforgettable Days 💖"];
+    const headingText = headings[idx % headings.length];
+
+    const gallery = document.createElement("div");
+    gallery.className = "gallery";
+
+    chunk.forEach((src, i) => {
+      const frameClass = frameTypes[(idx*perSlide + i) % frameTypes.length];
+      const wrapper = document.createElement("figure");
+      wrapper.className = `frame ${frameClass}`;
+      wrapper.innerHTML = `
+        <div class="inner">
+          <img src="${src}" alt="memory ${idx*perSlide + i + 1}" loading="lazy" />
+        </div>
+        <figcaption class="caption">Memory ${idx*perSlide + i + 1}</figcaption>
+      `;
+      // add small tilt variance
+      if(frameClass === 'tilt') wrapper.style.transform = `rotate(${(i%2? -6:6)}deg)`;
+      gallery.appendChild(wrapper);
+    });
+
+    s.innerHTML = `
+      <div class="heading">
+        <h1>${headingText}</h1>
+        <p>Press Enter to continue the reel</p>
+      </div>
+    `;
+    s.appendChild(gallery);
+
+    // optional small paragraph under gallery
+    const para = document.createElement("div");
+    para.style.width="100%";
+    para.style.display="flex";
+    para.style.justifyContent="center";
+    para.innerHTML = `<div style="max-width:720px;color:rgba(255,255,255,0.86);text-align:center;font-size:14px">
+      Ye pal humesha yaad rahenge — choti choti baatein, lekin dil ko bohot pyari.
+    </div>`;
+    s.appendChild(para);
+
+    slidesRoot.appendChild(s);
+    slides.push(s);
+  });
+}
+
+/* create video slide if videos provided */
+function createVideoSlide(videoArray){
+  if(!videoArray || videoArray.length === 0) return;
+  const s = document.createElement("section");
+  s.className = "slide";
+  s.dataset.type = "video";
+
+  const heading = `<div class="heading"><h1>Live Moments 🎥</h1><p>Play and relive the clips</p></div>`;
+  const container = document.createElement("div");
+  container.className = "gallery";
+  videoArray.forEach((v, idx) => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "frame polaroid";
+    wrapper.innerHTML = `
+      <video playsinline muted preload="auto" loop webkit-playsinline>
+        <source src="${v}" type="video/mp4">
+        Your browser does not support HTML5 video.
+      </video>
+      <figcaption class="caption">Clip ${idx+1}</figcaption>
+    `;
+    container.appendChild(wrapper);
+  });
+
+  s.innerHTML = heading;
+  s.appendChild(container);
+
+  const note = document.createElement("div");
+  note.style.width="100%";
+  note.style.display="flex";
+  note.style.justifyContent="center";
+  note.innerHTML = `<div style="max-width:720px;color:rgba(255,255,255,0.86);text-align:center;font-size:14px">
+    (Videos will play muted — press the video to unmute if you want sound.)
+  </div>`;
+  s.appendChild(note);
+
+  slidesRoot.appendChild(s);
+  slides.push(s);
+}
+
+/* final slide (creative choice) */
+function createFinal(){
+  const s = document.createElement("section");
+  s.className = "slide";
+  s.dataset.type = "final";
+  s.innerHTML = `
+    <div class="final-inner">
+      <h2>Cheers to many more 🎉</h2>
+      <p>Bro, tu mera constant hain — har struggle mein saath, har khushi mein celebration. May your coming year be full of fire moments, safe travels, new wins, aur bohot saari masti. Love you, forever dost. 🫶</p>
+    </div>
+  `;
+  slidesRoot.appendChild(s);
+  slides.push(s);
+}
+
+/* build slides */
+createIntro();
+createImageSlides(images.slice(0,16)); // limit to 16
+createVideoSlide(videos.slice(0,2));   // up to 2
+createFinal();
+
+/* navigation */
+const total = slides.length;
+const pageIndicator = document.getElementById("pageIndicator");
+function updatePage(){
+  pageIndicator.innerText = `${currentIndex+1} / ${total}`;
+  // activate/deactivate video playback
+  slides.forEach((sl, i) => {
+    if(sl.dataset.type === 'video'){
+      const vids = sl.querySelectorAll('video');
+      vids.forEach(v => {
+        if(i === currentIndex){
+          // try to play; user gesture (Enter) should allow autoplay muted
+          v.muted = true;
+          const p = v.play();
+          if(p !== undefined){
+            p.catch(()=>{/* autoplay blocked — fine */});
+          }
+        } else {
+          v.pause();
+          v.currentTime = 0;
+        }
+      });
+    }
+  });
+}
+
+updatePage();
+
+/* keyboard listener */
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' || e.key === 'ArrowRight'){
+    go(1);
+  } else if(e.key === 'ArrowLeft'){
+    go(-1);
+  }
+});
+
+function go(direction){
+  slides[currentIndex].classList.remove("active");
+  currentIndex = (currentIndex + direction + total) % total;
+  slides[currentIndex].classList.add("active");
+  updatePage();
+  // subtle focus for frame elements (small scale)
+  const allFrames = slides[currentIndex].querySelectorAll(".frame");
+  allFrames.forEach((f,i) => {
+    f.style.transition = 'transform .6s cubic-bezier(.2,.9,.2,1)';
+    f.style.transform = (f.classList.contains('tilt') ? f.style.transform : 'translateY(0)');
+  });
+}
+
+/* initial page indicator */
+updatePage();
+
+/* click-to-advance on stage (also works on mobile taps) */
+document.querySelector('.stage').addEventListener('click', (e) => {
+  // ignore clicks on videos (allow play/pause)
+  if(e.target.tagName.toLowerCase() === 'video') return;
+  go(1);
+});
+
+/* allow tapping a frame to enlarge (simple fullscreen) */
+document.addEventListener('click', (e) => {
+  const f = e.target.closest('.frame');
+  if(!f) return;
+  const img = f.querySelector('img');
+  const vid = f.querySelector('video');
+  if(img){
+    openLightbox(img.src, 'image');
+  } else if(vid){
+    // toggle mute/unmute
+    if(vid.muted) { vid.muted = false; vid.play(); }
+    else { vid.muted = true; }
+  }
+});
+
+/* quick lightbox for images */
+function openLightbox(src, type){
+  const lb = document.createElement('div');
+  lb.style.position='fixed'; lb.style.inset='0'; lb.style.display='grid';
+  lb.style.placeItems='center'; lb.style.background='rgba(1,3,6,0.8)'; lb.style.zIndex=9999;
+  lb.innerHTML = `<div style="max-width:92%;max-height:92%;"><img src="${src}" style="width:100%;height:auto;border-radius:8px;box-shadow:0 30px 80px rgba(0,0,0,0.6)"/></div>`;
+  lb.addEventListener('click', ()=> document.body.removeChild(lb));
+  document.body.appendChild(lb);
+}
+
+/* small accessibility: show first slide automatically active */
+slides.forEach((s, idx) => {
+  if(idx !== 0) s.classList.remove('active');
+});
+updatePage();
+
+</script>
+
+</body>
+</html>
